@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>高考分数计算器</title>
+<style>
+    /* =========================================
+       导入本地字体 (请根据实际文件名修改 url)
+       ========================================= */
+    /* Thin (100) */
+    @font-face {
+        font-family: 'CustomFont';
+        src: url('./fonts/QynFlavorGroteskGB-Thin.ttf') format('truetype');
+        font-style: normal;
+    }
+
+    /* Light (300) */
+    @font-face {
+        font-family: 'CustomFont';
+        src: url('./fonts/QynFlavorGroteskGB-Light.ttf') format('truetype');
+        font-style: normal;
+    }
+
+    /* Regular (400) */
+    @font-face {
+        font-family: 'CustomFont';
+        src: url('./fonts/QynFlavorGroteskGB-Regular.ttf') format('truetype');
+        font-style: normal;
+    }
+
+    /* Medium (500) */
+    @font-face {
+        font-family: 'CustomFont';
+        src: url('./fonts/QynFlavorGroteskGB-Medium.ttf') format('truetype');
+        font-style: normal;
+    }
+
+    /* Bold (700) */
+    @font-face {
+        font-family: 'CustomFont';
+        src: url('./fonts/QynFlavorGroteskGB-Bold.ttf') format('truetype');
+        font-style: normal;
+    }
+
+    /* Heavy / Black (900) */
+    @font-face {
+        font-family: 'CustomFont';
+        src: url('./fonts/QynFlavorGroteskGB-Heavy.ttf') format('truetype');
+        font-style: normal;
+    }
+
+    /* =========================================
+       全局设置
+       ========================================= */
+    :root {
+        /* 将自定义字体 'CustomFont' 放在最首位 */
+        --font-family: 'CustomFont';
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    html, body {
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden; /* 刚好占满整屏 */
+        font-family: var(--font-family);
+        background-color: #f0f2f5;
+        color: #333;
+    }
+
+    /* 字重工具类 */
+    .fw-thin { font-weight: 100; }
+    .fw-light { font-weight: 300; }
+    .fw-regular { font-weight: 400; }
+    .fw-medium { font-weight: 500; }
+    .fw-bold { font-weight: 700; }
+    .fw-heavy { font-weight: 900; }
+
+    /* =========================================
+       主布局 (两行7个矩形)
+       ========================================= */
+    #app {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        width: 100%;
+    }
+
+    .row {
+        display: flex;
+        flex: 1; /* 平分上下高度 */
+        width: 100%;
+    }
+
+    /* =========================================
+       卡片通用样式与色彩
+       ========================================= */
+    .card {
+        display: flex;
+        flex-direction: column;
+        padding: 24px;
+        transition: all 0.3s ease;
+    }
+
+    /* 根据内容动态调整宽度，总分区域略宽 */
+    .card-total { flex: 1.5; background-color: #1E293B; color: #F8FAFC; flex-direction: row; padding: 0;}
+    .card-subject { flex: 1; border-right: 1px solid rgba(0,0,0,0.05); border-bottom: 1px solid rgba(0,0,0,0.05); }
+
+    /* 各科主题色 (扁平化浅色背景) */
+    .bg-chinese { background-color: #FEE2E2; color: #7F1D1D; }
+    .bg-math { background-color: #E0F2FE; color: #0C4A6E; }
+    .bg-english { background-color: #FEF3C7; color: #78350F; }
+    .bg-physics { background-color: #DCFCE7; color: #14532D; }
+    .bg-chemistry { background-color: #F3E8FF; color: #4C1D95; }
+    .bg-biology { background-color: #CCFBF1; color: #134E4A; }
+
+    /* =========================================
+       总分区域样式
+       ========================================= */
+    .total-panel-half {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+    .total-panel-half:first-child {
+        border-right: 2px dashed rgba(255,255,255,0.15);
+    }
+    .total-label { font-size: 1.5rem; letter-spacing: 2px; margin-bottom: 10px; opacity: 0.9;}
+    .total-score { font-size: 6rem; line-height: 1; margin-bottom: 15px;}
+    .total-detail { font-size: 1.1rem; opacity: 0.7; letter-spacing: 1px;}
+
+    /* =========================================
+       分科区域样式
+       ========================================= */
+    .subject-header {
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid currentColor;
+        opacity: 0.8;
+    }
+    .subject-title { font-size: 2rem; margin-bottom: 10px; }
+    .subject-summary {
+        display: flex;
+        justify-content: space-between;
+        font-size: 1.1rem;
+    }
+    .summary-item span { margin-left: 5px; }
+    .subject-body {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        overflow-y: auto;
+    }
+
+    /* 子项目表单 */
+    .sub-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 1.05rem;
+        padding: 8px 0;
+    }
+    .sub-item-name { flex: 1; }
+    .sub-item-inputs {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* 文本输入框 (非焦点状态表现为纯文本) */
+    .score-input {
+        width: 45px;
+        background: transparent;
+        border: none;
+        outline: none;
+        font-family: inherit;
+        font-size: 1.1rem;
+        color: currentColor;
+        text-align: right;
+        padding: 4px;
+        border-radius: 4px;
+        transition: all 0.2s;
+        cursor: text;
+    }
+    .score-input:focus {
+        background: rgba(255, 255, 255, 0.6);
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .score-input::-webkit-outer-spin-button,
+    .score-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .score-input[type=number] { -moz-appearance: textfield; }
+
+    .target-text { opacity: 0.6; width: 40px; text-align: left;}
+    .max-text { opacity: 0.4; font-size: 0.9rem; width: 35px; text-align: right;}
+    
+    .scaling-note {
+        font-size: 0.8rem;
+        opacity: 0.6;
+        margin-top: -5px;
+        margin-bottom: 10px;
+    }
+</style>
+</head>
+<body>
+
+<div id="app">
+    <div class="row">
+        <div class="card card-total" id="panel-total">
+            <div class="total-panel-half">
+                <div class="total-label fw-medium">计算总分</div>
+                <div class="total-score fw-heavy" id="actual-total-score">0</div>
+                <div class="total-detail fw-light" id="actual-total-detail">0+0+0+0+0+0</div>
+            </div>
+            <div class="total-panel-half">
+                <div class="total-label fw-medium">目标总分</div>
+                <div class="total-score fw-heavy" style="color: #93C5FD;" id="target-total-score">0</div>
+                <div class="total-detail fw-light" id="target-total-detail">0+0+0+0+0+0</div>
+            </div>
+        </div>
+        <div id="container-row1" style="display: flex; flex: 2;"></div>
+    </div>
+    
+    <div class="row" id="container-row2"></div>
+</div>
+
+<script>
+/**
+ * 高考分数配置及目标分数设置
+ */
+const subjectsConfig = [
+    { id: 'chinese', name: '语文', class: 'bg-chinese', max: 150, row: 1, items: [
+        { id: 'c_choice', name: '选择题', max: 27, target: 21 },
+        { id: 'c_subj', name: '主观题', max: 57, target: 42 },
+        { id: 'c_poem', name: '古诗默写', max: 6, target: 4 },
+        { id: 'c_essay', name: '作文', max: 60, target: 48 }
+    ]},
+    { id: 'math', name: '数学', class: 'bg-math', max: 150, row: 1, items: [
+        { id: 'm_choice', name: '选择题', max: 58, target: 51 },
+        { id: 'm_fill', name: '填空题', max: 15, target: 10 },
+        { id: 'm_ans', name: '解答题', max: 77, target: 65 }
+    ]},
+    { id: 'english', name: '英语', class: 'bg-english', max: 150, row: 2, isEnglish: true, items: [
+        { id: 'e_read', name: '阅读(笔试)', max: 65, target: 60 },
+        { id: 'e_gram', name: '语法填空(笔试)', max: 15, target: 15 },
+        { id: 'e_s_essay', name: '小作文(笔试)', max: 15, target: 13 },
+        { id: 'e_b_essay', name: '大作文(笔试)', max: 25, target: 20 },
+        { id: 'e_listen', name: '听力部分', max: 20, target: 18 }
+    ]},
+    { id: 'physics', name: '物理', class: 'bg-physics', max: 100, row: 2, items: [
+        { id: 'p_s_choice', name: '单选', max: 28, target: 28 },
+        { id: 'p_m_choice', name: '多选', max: 18, target: 15 },
+        { id: 'p_exp', name: '实验', max: 16, target: 14 },
+        { id: 'p_calc', name: '计算', max: 38, target: 28 }
+    ]},
+    { id: 'chemistry', name: '化学', class: 'bg-chemistry', max: 100, row: 2, isScaled: 'chem', items: [
+        { id: 'ch_choice', name: '选择题', max: 44, target: 40 },
+        { id: 'ch_n_choice', name: '非选择题', max: 56, target: 40 }
+    ]},
+    { id: 'biology', name: '生物', class: 'bg-biology', max: 100, row: 2, isScaled: 'bio', items: [
+        { id: 'b_choice', name: '选择题', max: 40, target: 36 },
+        { id: 'b_n_choice', name: '非选择题', max: 60, target: 44 }
+    ]}
+];
+
+/**
+ * 核心算法：化学等级赋分推演公式
+ */
+function scaleChemistry(raw) {
+    if (raw >= 100) return 100;
+    if (raw >= 88) return 93 + (raw - 88) * ((100 - 93) / (100 - 88));
+    if (raw >= 79) return 88 + (raw - 79) * ((93 - 88) / (88 - 79));
+    if (raw >= 75) return 86 + (raw - 75) * ((88 - 86) / (79 - 75));
+    if (raw >= 70) return 84 + (raw - 70) * ((86 - 84) / (75 - 70));
+    if (raw >= 67) return 81 + (raw - 67) * ((84 - 81) / (70 - 67));
+    if (raw >= 64) return 80 + (raw - 64) * ((81 - 80) / (67 - 64));
+    return raw * (80 / 64);
+}
+
+/**
+ * 核心算法：生物等级赋分推演公式
+ */
+function scaleBiology(raw) {
+    if (raw >= 100) return 100;
+    if (raw >= 87) return 93 + (raw - 87) * ((100 - 93) / (100 - 87));
+    if (raw >= 78) return 88 + (raw - 78) * ((93 - 88) / (87 - 78));
+    if (raw >= 76) return 87 + (raw - 76) * ((88 - 87) / (78 - 76));
+    if (raw >= 72) return 85 + (raw - 72) * ((87 - 85) / (76 - 72));
+    if (raw >= 70) return 84 + (raw - 70) * ((85 - 84) / (72 - 70));
+    return raw * (84 / 70); 
+}
+
+// 渲染UI界面
+function renderUI() {
+    const row1 = document.getElementById('container-row1');
+    const row2 = document.getElementById('container-row2');
+
+    subjectsConfig.forEach(subject => {
+        let itemsHtml = '';
+        let targetSum = 0;
+        
+        subject.items.forEach(item => {
+            targetSum += item.target;
+            itemsHtml += `
+                <div class="sub-item">
+                    <div class="sub-item-name fw-regular">${item.name}</div>
+                    <div class="sub-item-inputs">
+                        <input type="number" class="score-input fw-bold" data-subject="${subject.id}" data-item="${item.id}" value="0" min="0" max="${item.max}" oninput="calculateAll()">
+                        <span class="target-text fw-medium">/ ${item.target}</span>
+                        <span class="max-text fw-thin">(${item.max})</span>
+                    </div>
+                </div>
+            `;
+        });
+
+        // 预处理目标赋分
+        let targetScoreRender = targetSum;
+        if(subject.isEnglish) {
+            let writtenTarget = subject.items.slice(0,4).reduce((sum, it) => sum + it.target, 0);
+            let listenTarget = subject.items[4].target;
+            targetScoreRender = Math.round((writtenTarget * 13) / 12) + listenTarget;
+        } else if (subject.isScaled === 'chem') {
+            targetScoreRender = Math.round(scaleChemistry(targetSum));
+        } else if (subject.isScaled === 'bio') {
+            targetScoreRender = Math.round(scaleBiology(targetSum));
+        }
+
+        subject.targetComputed = targetScoreRender;
+
+        let noteHtml = '';
+        if(subject.isEnglish) noteHtml = `<div class="scaling-note fw-light">注：总分 = [(笔试×13)÷12] + 听力</div>`;
+        if(subject.isScaled === 'chem') noteHtml = `<div class="scaling-note fw-light">注：启用化学等级赋分算法</div>`;
+        if(subject.isScaled === 'bio') noteHtml = `<div class="scaling-note fw-light">注：启用生物等级赋分算法</div>`;
+
+        const cardHtml = `
+            <div class="card card-subject ${subject.class}">
+                <div class="subject-header">
+                    <div class="subject-title fw-bold">${subject.name}</div>
+                    ${noteHtml}
+                    <div class="subject-summary">
+                        <div class="summary-item fw-regular">输入分: <span class="fw-bold" id="actual-${subject.id}">0</span></div>
+                        <div class="summary-item fw-regular" style="opacity:0.7">目标分: <span class="fw-bold">${targetScoreRender}</span></div>
+                        <div class="summary-item fw-regular" style="opacity:0.5">满分: <span class="fw-bold">${subject.max}</span></div>
+                    </div>
+                </div>
+                <div class="subject-body">
+                    ${itemsHtml}
+                </div>
+            </div>
+        `;
+
+        if (subject.row === 1) row1.innerHTML += cardHtml;
+        else row2.innerHTML += cardHtml;
+    });
+
+    calculateAll();
+}
+
+// 核心计算逻辑
+function calculateAll() {
+    let actualScores = [];
+    let targetScores = [];
+    let overallActualTotal = 0;
+    let overallTargetTotal = 0;
+
+    subjectsConfig.forEach(subject => {
+        let rawSum = 0;
+        let writtenSum = 0;
+        let listenScore = 0;
+
+        subject.items.forEach((item, index) => {
+            const inputEl = document.querySelector(`input[data-item="${item.id}"]`);
+            let val = parseFloat(inputEl.value) || 0;
+            if (val > item.max) { val = item.max; inputEl.value = val; }
+            if (val < 0) { val = 0; inputEl.value = 0; }
+            
+            rawSum += val;
+
+            if(subject.isEnglish) {
+                if(index < 4) writtenSum += val;
+                else listenScore = val;
+            }
+        });
+
+        let finalSubjectScore = rawSum;
+
+        if (subject.isEnglish) {
+            finalSubjectScore = Math.round((writtenSum * 13) / 12) + listenScore;
+        } else if (subject.isScaled === 'chem') {
+            finalSubjectScore = Math.round(scaleChemistry(rawSum));
+        } else if (subject.isScaled === 'bio') {
+            finalSubjectScore = Math.round(scaleBiology(rawSum));
+        }
+
+        document.getElementById(`actual-${subject.id}`).innerText = finalSubjectScore;
+
+        actualScores.push(finalSubjectScore);
+        targetScores.push(subject.targetComputed);
+        overallActualTotal += finalSubjectScore;
+        overallTargetTotal += subject.targetComputed;
+    });
+
+    document.getElementById('actual-total-score').innerText = overallActualTotal;
+    document.getElementById('actual-total-detail').innerText = actualScores.join(' + ');
+
+    document.getElementById('target-total-score').innerText = overallTargetTotal;
+    document.getElementById('target-total-detail').innerText = targetScores.join(' + ');
+}
+
+window.onload = renderUI;
+</script>
+</body>
+</html>
