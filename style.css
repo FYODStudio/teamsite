@@ -1,0 +1,553 @@
+/* ===== 全局重置 & 基础 ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', 'PingFang SC', Roboto, 'Helvetica Neue', sans-serif;
+    background: #0b0e1a;
+    color: #fff;
+    min-height: 100vh;
+}
+
+.hero {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0 24px;
+    background-image: url(images/shengxiba/logo.png);
+    background-position: center;
+}
+
+.hero h1 {
+    font-size: clamp(2.4rem, 8vw, 4.8rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #f0e9ff 0%, #b8a5ff 50%, #7dd3fc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+}
+
+.hero p {
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    color: rgba(255, 255, 255, 0.6);
+    max-width: 560px;
+    line-height: 1.7;
+}
+
+.hero .badge {
+    margin-top: 28px;
+    display: inline-block;
+    padding: 8px 24px;
+    border-radius: 100px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 0.3px;
+}
+
+/* ===== Header ===== */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    height: 70px;
+    padding: 0 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    /* 毛玻璃效果 */
+    background: rgba(10, 14, 30, 0.55);
+    backdrop-filter: blur(18px) saturate(1.2);
+    -webkit-backdrop-filter: blur(18px) saturate(1.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+
+    transition: background 0.3s ease;
+}
+
+/* 当菜单打开时，让 header 背景更透明，露出更多毛玻璃层次 */
+.header.menu-open {
+    background: rgba(10, 14, 30, 0.30);
+}
+
+/* ===== Logo ===== */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: #fff;
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    flex-shrink: 0;
+}
+
+.logo svg {
+    width: auto;
+    height: 28px;
+    flex-shrink: 0;
+}
+
+.logo span {
+    background: linear-gradient(135deg, #b8a5ff, #7dd3fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ===== 桌面端菜单 ===== */
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    list-style: none;
+}
+
+.nav-menu li a {
+    display: block;
+    padding: 8px 18px;
+    border-radius: 100px;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.25s ease;
+    letter-spacing: 0.2px;
+    position: relative;
+}
+
+.nav-menu li a:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.nav-menu li a::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%) scaleX(0);
+    width: 60%;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #b8a5ff, #7dd3fc);
+    transition: transform 0.3s ease;
+}
+
+.nav-menu li a:hover::after {
+    transform: translateX(-50%) scaleX(1);
+}
+
+/* ===== 汉堡按钮 ===== */
+.hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 44px;
+    height: 44px;
+    cursor: pointer;
+    gap: 5px;
+    z-index: 1100;
+    border-radius: 12px;
+    transition: background 0.2s ease;
+    flex-shrink: 0;
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.hamburger:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.hamburger span {
+    display: block;
+    width: 26px;
+    height: 2.5px;
+    border-radius: 4px;
+    background: #fff;
+    transition: all 0.35s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    transform-origin: center;
+}
+
+/* 汉堡 → X 动画 */
+.hamburger.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+    width: 26px;
+}
+
+.hamburger.active span:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+}
+
+.hamburger.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+    width: 26px;
+}
+
+/* ===== 移动端全屏菜单覆盖层 ===== */
+.menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+    background: rgba(8, 12, 30, 0.65);
+    backdrop-filter: blur(28px) saturate(1.4);
+    -webkit-backdrop-filter: blur(28px) saturate(1.4);
+
+    /* 从右侧滑入 */
+    transform: translateX(100%);
+    transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+}
+
+.menu-overlay.active {
+    transform: translateX(0);
+}
+
+/* 覆盖层内部菜单列表 */
+.menu-overlay .overlay-nav {
+    list-style: none;
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
+}
+
+.menu-overlay .overlay-nav li {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: calc(0.06s * var(--i, 0));
+    margin: 6px 0;
+}
+
+.menu-overlay.active .overlay-nav li {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.menu-overlay .overlay-nav li a {
+    display: block;
+    padding: 16px 20px;
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: none;
+    letter-spacing: 1px;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.menu-overlay .overlay-nav li a:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.06);
+    transform: scale(1.03);
+}
+
+/* 菜单项之间的装饰分隔线 */
+.menu-overlay .overlay-nav li:not(:last-child)::after {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 1px;
+    margin: 6px auto 0;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+/* 覆盖层右上角关闭按钮（X） */
+.menu-overlay .close-btn {
+    position: absolute;
+    top: 18px;
+    right: 24px;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    background: transparent;
+    border: none;
+    line-height: 1;
+}
+
+.menu-overlay .close-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+    transform: rotate(90deg);
+}
+
+/* 覆盖层底部小提示 */
+.menu-overlay .hint {
+    position: absolute;
+    bottom: 40px;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.2);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* ===== 响应式：小于 768px 显示汉堡 ===== */
+@media (max-width: 767px) {
+    .nav-menu {
+        display: none;
+    }
+
+    .hamburger {
+        display: flex;
+    }
+
+    .header {
+        padding: 0 16px;
+        height: 64px;
+    }
+
+    .logo {
+        font-size: 1.1rem;
+    }
+
+    .logo svg {
+        width: auto;
+        height: 28px;
+    }
+
+    .menu-overlay .overlay-nav li a {
+        padding: 14px 16px;
+        font-size: clamp(1.6rem, 4.5vw, 2.4rem);
+    }
+}
+
+/* ===== 响应式：大于等于 768px 显示完整菜单 ===== */
+@media (min-width: 768px) {
+    .hamburger {
+        display: none !important;
+    }
+
+    .menu-overlay {
+        display: none !important;
+    }
+
+    .nav-menu {
+        display: flex !important;
+    }
+}
+
+/* ===== 工具类 ===== */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+/* ===== 滚动条美化（可选） ===== */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+section.welcome h1 {
+    font-size: 46px;
+}
+
+section.welcome h2 {
+    font-size: 20px;
+}
+
+section.welcome p {
+    font-size: 20px;
+    margin-top: 6px;
+}
+
+a {
+    color: #b8a5ff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 1000px) {
+    .limit {
+        margin-top: 24px;
+
+        background: rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 20px;
+        padding: 20px 24px;
+        transition: transform 0.3s ease, background 0.3s ease;
+        margin-left: 24px;
+        margin-right: 24px;
+    }
+}
+
+@media (min-width: 1000px) {
+    .nor {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .limit {
+        width: 1000px;
+        margin-top: 24px;
+
+        background: rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 20px;
+        padding: 20px 24px;
+        transition: transform 0.3s ease, background 0.3s ease;
+    }
+}
+
+div.ep {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 20px;
+    padding: 20px 24px;
+    margin-top: 20px;
+    transition: transform 0.3s ease, background 0.3s ease;
+}
+
+div.ep div.cams {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+div.ep h2 {
+    margin-bottom: 20px;
+}
+
+div.ep div.cams div.fuge {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 20px;
+    padding: 20px 24px;
+    margin-right: 20px;
+    transition: transform 0.3s ease, background 0.3s ease;
+}
+
+div.ep div.cams div.opent {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 20px;
+    padding: 20px 24px;
+    transition: transform 0.3s ease, background 0.3s ease;
+}
+
+div.ep div.cams div.fuge img,
+div.ep div.cams div.opent img {
+    border-radius: 20px;
+    margin-top: 15px;
+}
+
+div.ep div.cams div.fuge h3,
+div.ep div.cams div.opent h3 {
+    text-align: center;
+}
+
+section.shengxiba p.dis {
+    text-align: center;
+    margin-top: 15px;
+}
+
+footer {
+    background: linear-gradient(90deg, #b8a5ff, #7dd3fc);
+    margin-top: 20px;
+    padding: 20px 15px;
+    text-align: center;
+}
+
+footer a {
+    color: black;
+    text-decoration: underline;
+}
+
+footer a:hover {
+    font-size: 1.2rem;
+    font-weight: bold;
+    transition: font-size .3s;
+}
+
+footer p {
+    color: black;
+}
+
+footer div.uplink {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 6px;
+}
+
+@media (max-width: 1000px) {
+    div.ep div.cams div.fuge, div.ep div.cams div.opent {
+        padding: 6px 9px;
+    }
+    div.ep h2 {
+        margin-bottom: 4px;
+    }
+    div.ep {
+        padding: 10px 12px;
+    }
+}
