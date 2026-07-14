@@ -149,6 +149,13 @@ button.outline:hover {
   justify-content: space-between;
   align-items: center;
   box-shadow: var(--nav-shadow);
+
+  /* 将纯黑背景替换为半透明黑色，透明度可根据需要调整 */
+  background-color: rgba(0, 0, 0, 0.5);
+  
+  /* 核心毛玻璃模糊效果 */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px); /* Safari 兼容 */
 }
 
 .nav__logo {
